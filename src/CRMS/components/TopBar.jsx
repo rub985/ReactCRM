@@ -1,5 +1,7 @@
 import SidebarToggle from "./SidebarToggle";
+import {useNavigate} from 'react-router-dom'
 const TopBar = () => {
+  const navigate = useNavigate()
   return (
     <nav className="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
       <SidebarToggle />
@@ -182,7 +184,10 @@ const TopBar = () => {
               Activity Log
             </a>
             <div className="dropdown-divider"></div>
-            <a
+            <button
+            onClick={() => {
+              navigate('/login')
+            }}
               className="dropdown-item"
               href="#"
               data-toggle="modal"
@@ -190,7 +195,7 @@ const TopBar = () => {
             >
               <i className="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
               Logout
-            </a>
+            </button>
           </div>
         </li>
       </ul>
