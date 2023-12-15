@@ -2,6 +2,7 @@ import React from 'react';
 import Sidebar from '../components/Sidebar';
 import Footer from '../components/Footer';
 import TopBar from '../components/TopBar';
+import {Outlet} from 'react-router-dom'
 
 const Main =({children})=>{
   console.log("main rendered");
@@ -25,8 +26,8 @@ const Main =({children})=>{
         {/* <!-- End of Topbar --> */}
 
         {/* <!-- Begin Page Content --> */}
-        
-        <main>{children}</main>
+
+        <main>{<Outlet/>}</main>
         {/* <!-- /.container-fluid -->Z */}
 
     </div>
