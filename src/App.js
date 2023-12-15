@@ -30,12 +30,11 @@ function App() {
   // const queryCLient = useQueryCLient()
   // queryCLient.invalidateQuery(['userdata'])
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
 
   // Check authentication status on component mount
   useEffect(() => {
-    setLoading(true)
     const token = localStorage.getItem("apiToken");
     console.log("Token from localStorage:", token);
     // setIsAuthenticated(!!token);

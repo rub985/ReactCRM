@@ -21,9 +21,9 @@ const Login =({setIsLoading, onAuthentication})=>{
 
       // Store the token securely (e.g., in localStorage or a state management library)
       localStorage.setItem('apiToken', token);
-      setIsLoading(false)
       onAuthentication(true);
       navigate('/')
+      setIsLoading(false)
       // Make subsequent requests with the token
       const authenticatedResponse = await axios.get(process.env.REACT_APP_URL + `/authenticate-token`, {
         headers: {
