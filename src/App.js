@@ -1,105 +1,59 @@
-import "./App.css";
-import "bootstrap/dist/css/bootstrap.min.css"
-import Main from "./CRMS/Layouts/Main";
-import Dashboard from "./CRMS/Views/Dashboard";
-import Table from "./CRMS/Views/Table";
-import Tasks from "./CRMS/Views/Tasks";
-import Contacts from "./CRMS/Views/Contacts";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  createBrowserRouter,
-  Navigate,
-} from "react-router-dom";
-import Companies from "./CRMS/Views/Companies";
-import Leads from "./CRMS/Views/Leads";
-import Deals from "./CRMS/Views/Deals";
-import Projects from "./CRMS/Views/Projects";
-import "izitoast/dist/css/iziToast.min.css";
-import Login from "./CRMS/Layouts/Login";
-import { useEffect, useState } from "react";
+import axios from "axios";
+import { useState } from "react";
+import {useNavigate} from 'react-router-dom'
 
-function App() {
-  // const {isLoading, isError, data} = useQuery({
-  //   queryfn: 'https://apicall',
-  //   queryKey: ['userdata']
-  // })
-  // const queryCLient = useQueryCLient()
-  // queryCLient.invalidateQuery(['userdata'])
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true);
+const Login =({setIsLoading, onAuthentication})=>{
+  const [credentials, setCredentials] = useState({
+    email: '',
+    password: '',
+  });
+  const navigate = useNavigate()
 
-  // Check authentication status on component mount
-  useEffect(() => {
-    const token = localStorage.getItem("apiToken");
-    console.log("Token from localStorage:", token);
-    setIsAuthenticated(!!token);
-    setLoading(false);
-  }, []);
+  const handleLogin = async () => {
+    try {
+      // Send login request to Laravel API
+      setIsLoading(true)
+      const response = await axios.post(process.env.REACT_APP_URL + `/login`, credentials);
 
-  // Function to handle authentication status
-  const handleAuthentication = (status) => {
-    console.log(status);
-    setIsAuthenticated(status);
-  };
+      // Extract token from the response
+      const token = response.data.data.token;
 
-  // PrivateRoute component for authenticated routes
-  const PrivateRoute = ({ element }) => {
-    console.log("PrivateRoute - isAuthenticated:", isAuthenticated);
-    if (isAuthenticated) {
-      console.log("PrivateRoute - Rendering element");
-      return element;
-    } else {
-      console.log("PrivateRoute - Redirecting to /login");
-      return (
-        <Navigate
-          to="/login"
-        />
-      );
+      // Store the token securely (e.g., in localStorage or a state management library)
+      localStorage.setItem('apiToken', token);
+      setIsLoading(false)
+      onAuthentication(true);
+      navigate('/')
+      // Make subsequent requests with the token
+      const authenticatedResponse = await axios.get(process.env.REACT_APP_URL + `/authenticate-token`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      // Handle the authenticated response as needed
+      console.log(authenticatedResponse.data);
+    } catch (error) {
+      setIsLoading(false)
+      console.error('Login failed', error);
     }
   };
-  if (loading) {
-    // You can return a loading indicator here
-    return <div>Loading...</div>;
-  }
-  console.log("Main rendering - isAuthenticated:", isAuthenticated);
+
   return (
-    <>
-      {/* <!-- Page Wrapper --> */}
-
-      <Router>
-        <Routes>
-          <Route
-            path="/login"
-            element={<Login onAuthentication={handleAuthentication} />}
-          />
-          <Route
-            path="*"
-            element={
-              isAuthenticated ? (
-                <Main>
-                  <PrivateRoute path="/" element={<Dashboard />} />
-                  <PrivateRoute path="/table" element={<Table />} />
-                  <PrivateRoute path="/tasks" element={<Tasks />} />
-                  <PrivateRoute path="/contacts" element={<Contacts />} />
-                  <PrivateRoute path="/companies" element={<Companies />} />
-                  <PrivateRoute path="/leads" element={<Leads />} />
-                  <PrivateRoute path="/deals" element={<Deals />} />
-                  <PrivateRoute path="/projects" element={<Projects />} />
-                </Main>
-              ) : (
-                <Navigate to="/login" />
-              )
-            }
-          />
-        </Routes>
-      </Router>
-     
-
-      {/* <!-- End of Page Wrapper --> */}
-    </>
+    <div>
+      <input
+        type="email"
+        placeholder="Email"
+        value={credentials.email}
+        onChange={(e) => setCredentials({ ...credentials, email: e.target.value })}
+      />
+      <input
+        type="password"
+        placeholder="Password"
+        value={credentials.password}
+        onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
+      />
+      <button onClick={handleLogin}>Login</button>
+    </div>
   );
 }
-
-export default App;
+export default Login;
